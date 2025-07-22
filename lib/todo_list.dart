@@ -13,6 +13,7 @@ class TodoListProvider extends ChangeNotifier {
       ..["subtitle"] = description
       ..["date"] = "${scheduleDate.year}.${scheduleDate.month}.${scheduleDate.day}"
       ..["time"] = "${scheduleTime.hour}:${scheduleTime.minute}"
+      ..["isChecked"] = false
     );
 
     notifyListeners();
