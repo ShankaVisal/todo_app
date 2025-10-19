@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/homapage.dart';
-import 'package:todo_app/todo_list.dart';
+import 'package:todo_app/to_do_list_provider.dart';
 
 void main(){
   runApp(MyApp());
