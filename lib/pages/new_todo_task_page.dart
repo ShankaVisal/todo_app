@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todo_app/to_do_list_provider.dart';
+import 'package:todo_app/providers/to_do_list_provider.dart';
 
 class NewToDoTaskPage extends StatefulWidget {
   const NewToDoTaskPage({super.key});
@@ -82,7 +82,7 @@ class _NewToDoTaskPageState extends State<NewToDoTaskPage> {
               ),
               TextButton(
                   onPressed: () {
-                    todoListProviderModal.addToDo(
+                    todoListProviderModal.addTask(
                         title.text, subtitle.text, selectDate!, selectTime!);
                     Navigator.pop(context);
                   },
