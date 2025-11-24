@@ -22,7 +22,9 @@ class TaskAdapter extends TypeAdapter<Task> {
       description: fields[2] as String,
       scheduledDate: fields[3] as DateTime,
       isChecked: fields[5] as bool,
-      createdAt: fields[4] as String,
+      scheduleTime: fields[4] as String,
+      priority: fields[6] as String,
+      createdAt: fields[7] as DateTime,
     );
   }
 
@@ -39,7 +41,7 @@ class TaskAdapter extends TypeAdapter<Task> {
       ..writeByte(3)
       ..write(obj.scheduledDate)
       ..writeByte(4)
-      ..write(obj.createdAt)
+      ..write(obj.scheduleTime)
       ..writeByte(5)
       ..write(obj.isChecked);
   }

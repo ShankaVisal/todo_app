@@ -1,4 +1,3 @@
-import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:hive/hive.dart';
 
 part 'task_model.g.dart';
@@ -18,10 +17,16 @@ class Task extends HiveObject {
   DateTime scheduledDate;
 
   @HiveField(4)
-  String createdAt;
+  String scheduleTime;
 
   @HiveField(5)
   bool isChecked;
+
+  @HiveField(6)
+  String priority;
+
+  @HiveField(7)
+  DateTime createdAt;
 
   Task({
     required this.id,
@@ -29,6 +34,8 @@ class Task extends HiveObject {
     required this.description,
     required this.scheduledDate,
     this.isChecked = false,
-    required this.createdAt
+    required this.scheduleTime,
+    required this.priority,
+    required this.createdAt,
   }) ;
 }

@@ -7,9 +7,22 @@ import 'package:uuid/uuid.dart';
 class TodoListProvider extends ChangeNotifier {
   final String _boxName = 'tasks';
   final uuid = Uuid();
+  String _searchQuery = "";
 
   List<Task> _tasks = [];
-  List<Task> get tasks => _tasks;
+
+  List<Task> get tasks {
+    if (_searchQuery.isEmpty) return _tasks;
+    return _tasks
+        .where((task) =>
+            task.title.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
+  }
+
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
 
   Future<void> init() async {
     final box = await Hive.openBox<Task>(_boxName);
@@ -17,12 +30,8 @@ class TodoListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addTask(
-    String title,
-    String description,
-    DateTime scheduleDate,
-    Time createdAt,
-  ) async {
+  Future<void> addTask(String title, String description, DateTime scheduleDate,
+      Time createdAt, String priority) async {
     final box = Hive.box<Task>(_boxName);
 
     final formattedTime =
@@ -33,7 +42,9 @@ class TodoListProvider extends ChangeNotifier {
       title: title,
       description: description,
       scheduledDate: scheduleDate,
-      createdAt: formattedTime, //  store formatted string
+      scheduleTime: formattedTime,
+      priority: priority,
+      createdAt: DateTime.now(),
     );
 
     await box.put(task.id, task);
