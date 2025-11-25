@@ -1,146 +1,4 @@
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-// import 'package:todo_app/pages/new_todo_task_page.dart';
-// import 'package:todo_app/providers/to_do_list_provider.dart';
-
-// import '../components/detailed_task_card_model.dart';
-
-// class MyHomePage extends StatefulWidget {
-//   const MyHomePage({super.key});
-
-//   @override
-//   State<MyHomePage> createState() => _MyHomePageState();
-// }
-
-// class _MyHomePageState extends State<MyHomePage> {
-//   void _openTaskDetailsSheet(BuildContext context, var task) {
-//     showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-//       ),
-//       builder: (context) {
-//         return Padding(
-//           padding: const EdgeInsets.all(16),
-//           child: DetailedTaskCard(
-//             title: task.title,
-//             description: task.description ?? "No description",
-//             scheduledDate: task.scheduledDate,
-//             scheduleTime: task.scheduleTime,
-//             priority: task.priority ?? "Not set",
-//             createdAt: task.createdAt,
-//             isChecked: task.isChecked,
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Consumer<TodoListProvider>(
-//       builder: (context, todoListProviderModal, child) => Scaffold(
-//         floatingActionButton: FloatingActionButton(
-//           onPressed: () {
-//             Navigator.push(context,
-//                 MaterialPageRoute(builder: (context) => NewToDoTaskPage()));
-//           },
-//           child: Icon(Icons.add),
-//         ),
-//         backgroundColor: Colors.white,
-//         body: Column(
-//           children: [
-//             Padding(
-//               padding: const EdgeInsets.all(12.0),
-//               child: TextField(
-//                 decoration: InputDecoration(
-//                   prefixIcon: Icon(Icons.search),
-//                   hintText: "Search tasks...",
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(12),
-//                   ),
-//                 ),
-//                 onChanged: (value) {
-//                   Provider.of<TodoListProvider>(context, listen: false)
-//                       .setSearchQuery(value);
-//                 },
-//               ),
-//             ),
-//             Expanded(
-//               child: ListView.builder(
-//                 itemCount: todoListProviderModal.tasks.length,
-//                 itemBuilder: (context, index) {
-//                   final item = todoListProviderModal.tasks[index];
-//                   return Dismissible(
-//                     key: Key(item.id),
-//                     direction: DismissDirection.endToStart,
-//                     onDismissed: (direction) {
-//                       todoListProviderModal.deleteTask(item.id);
-
-//                       ScaffoldMessenger.of(context).showSnackBar(
-//                         SnackBar(content: Text("${item.title} deleted")),
-//                       );
-//                     },
-//                     background: Container(
-//                       color: Colors.red,
-//                       alignment: Alignment.centerRight,
-//                       padding: EdgeInsets.only(right: 20),
-//                       child: Icon(
-//                         Icons.delete,
-//                         color: Colors.white,
-//                       ),
-//                     ),
-//                     child: ListTile(
-//                       onTap: () {
-//                         _openTaskDetailsSheet(context, item);
-//                       },
-//                       leading: Checkbox(
-//                         value: item.isChecked,
-//                         onChanged: (value) {
-//                           todoListProviderModal.toggleComplete(item);
-//                         },
-//                       ),
-//                       trailing: IconButton(
-//                         onPressed: () {
-//                           todoListProviderModal.deleteTask(item.id);
-//                           ScaffoldMessenger.of(context).showSnackBar(
-//                             SnackBar(content: Text("${item.title} is deleted")),
-//                           );
-//                         },
-//                         icon: Icon(Icons.delete),
-//                       ),
-//                       title: Text(item.title),
-//                       subtitle: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           Row(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//                               Text(item.scheduledDate.toString().split(' ')[0]),
-//                               SizedBox(width: 4),
-//                               Text(item.scheduleTime),
-//                             ],
-//                           ),
-//                           Text(
-//                             item.description,
-//                             maxLines: 1,
-//                             overflow: TextOverflow.ellipsis,
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/providers/to_do_list_provider.dart';
@@ -152,169 +10,228 @@ class ModernHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<TodoListProvider>(
-      builder: (context, todoProvider, child) => Scaffold(
-        backgroundColor: const Color(0xFFF4F6FA),
-
-        floatingActionButton: Container(
-          height: 70,
-          width: 70,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [
-                Colors.blueAccent.withOpacity(0.7),
-                Colors.purpleAccent.withOpacity(0.7),
-                Colors.greenAccent.withOpacity(0.7),
-              ],
+      builder: (context, todoProvider, child) {
+        return Scaffold(
+          backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+          floatingActionButton: glassFAB(() {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => NewToDoTaskPage()));
+          }),
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF0D0D0D),
+                  Color(0xFF1A1A1A),
+                  Color(0xFF0F0F0F),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 20,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
-          child: FloatingActionButton(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => NewToDoTaskPage()));
-            },
-            child: const Icon(Icons.add, size: 32),
-          ),
-        ),
-
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                child: Text(
-                  "My Tasks",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-
-              // Search bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
-                      )
-                    ],
-                  ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      icon: Icon(Icons.search),
-                      hintText: "Search tasks...",
-                      border: InputBorder.none,
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Text(
+                      "My Tasks",
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
-                    onChanged: (value) {
-                      Provider.of<TodoListProvider>(context, listen: false)
-                          .setSearchQuery(value);
-                    },
                   ),
-                ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.20),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.3),
+                            ),
+                          ),
+                          child: TextField(
+                            style: TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              prefixIcon:
+                                  Icon(Icons.search, color: Colors.white70),
+                              hintText: "Search tasks...",
+                              hintStyle: TextStyle(color: Colors.white60),
+                              border: InputBorder.none,
+                            ),
+                            onChanged: (value) {
+                              Provider.of<TodoListProvider>(context,
+                                      listen: false)
+                                  .setSearchQuery(value);
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Task List
+                  Expanded(
+                    child: ListView.builder(
+                      padding: EdgeInsets.all(16),
+                      itemCount: todoProvider.tasks.length,
+                      itemBuilder: (context, index) {
+                        final task = todoProvider.tasks[index];
+
+                        return _buildTaskCard(task, context, todoProvider);
+                      },
+                    ),
+                  ),
+                ],
               ),
-
-              const SizedBox(height: 10),
-
-              // Task List
-              Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.all(16),
-                  itemCount: todoProvider.tasks.length,
-                  itemBuilder: (context, index) {
-                    final task = todoProvider.tasks[index];
-
-                    return _buildTaskCard(task, context, todoProvider);
-                  },
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildTaskCard(task, BuildContext context, TodoListProvider provider) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        gradient: LinearGradient(
-          colors: [
-            Colors.white.withOpacity(0.8),
-            Colors.white.withOpacity(0.6),
-          ],
+  Widget _buildTaskCard(
+      task, BuildContext context, TodoListProvider taskProvider) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Dismissible(
+        key: Key(task.id),
+        onDismissed: (direction) {
+          taskProvider.deleteTask(task.id);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("${task.title} deleted")),
+          );
+        },
+        background: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color: Colors.red,
+          ),
+          alignment: Alignment.centerRight,
+          padding: EdgeInsets.only(right: 20),
+          child: Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 12,
-            offset: Offset(0, 6),
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title and Priority
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                task.title,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+        direction: DismissDirection.endToStart,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                color: Colors.white.withOpacity(0.12),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.2),
+                  width: 1.2,
                 ),
               ),
+              child: Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  splashColor: Colors.white.withOpacity(0.1),
+                  highlightColor: Colors.white.withOpacity(0.05),
+                  onTap: () {
+                    _openTaskDetailsSheet(context, task);
+                  },
+                  onDoubleTap: () {
+                    taskProvider.toggleComplete(task);
+                  },
+                  onLongPress: () => {
+                    taskProvider.deleteTask(task.id),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("${task.title} is deleted")),
+                    ),
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        // Checkbox
+                        Checkbox(
+                          value: task.isChecked,
+                          onChanged: (_) {
+                            taskProvider.toggleComplete(task);
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          side: BorderSide(color: Colors.white70),
+                          checkColor: Colors.black,
+                          activeColor: Colors.white,
+                        ),
 
-              _priorityChip(task.priority),
-            ],
-          ),
+                        const SizedBox(width: 8),
 
-          const SizedBox(height: 6),
+                        // Title + Priority
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                task.title,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  decoration: task.isChecked
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  color: _priorityColor(task.priority)
+                                      .withOpacity(0.35),
+                                ),
+                                child: Text(
+                                  task.priority.toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
-          // Description
-          Text(
-            task.description,
-            style: TextStyle(color: Colors.black54),
-          ),
+                        const SizedBox(width: 10),
 
-          const SizedBox(height: 10),
-
-          // Schedule
-          Row(
-            children: [
-              Icon(Icons.access_time, size: 16, color: Colors.grey),
-              SizedBox(width: 4),
-              Text(
-                "${task.scheduledDate.toString().split(' ')[0]}, ${task.scheduleTime}",
-                style: TextStyle(color: Colors.black54),
+                        // Arrow Icon
+                        Icon(Icons.arrow_forward_ios_rounded,
+                            color: Colors.white70, size: 18),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -352,4 +269,177 @@ class ModernHomePage extends StatelessWidget {
       ),
     );
   }
+}
+
+
+Color _priorityColor(String priority) {
+  switch (priority.toLowerCase()) {
+    case 'high':
+      return Colors.redAccent;
+    case 'medium':
+      return Colors.orangeAccent;
+    default:
+      return Colors.blueAccent;
+  }
+}
+
+Widget glassSearchBar(
+    TextEditingController controller, Function(String) onSearch) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(16, 10, 16, 5),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          height: 50,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+            ),
+          ),
+          child: TextField(
+            controller: controller,
+            style: TextStyle(color: Colors.white),
+            onChanged: onSearch,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.search, color: Colors.white70),
+              hintText: "Search tasks...",
+              hintStyle: TextStyle(color: Colors.white54),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget glassFAB(VoidCallback onPressed) {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(50),
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+      child: FloatingActionButton(
+        onPressed: onPressed,
+        backgroundColor: Colors.white.withOpacity(0.15),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+          side: BorderSide(
+            color: Colors.white.withOpacity(0.2),
+            width: 1.2,
+          ),
+        ),
+        child: Icon(Icons.add, color: Colors.white, size: 30),
+      ),
+    ),
+  );
+}
+
+Future _openTaskDetailsSheet(BuildContext context, var task) {
+  return showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (context) {
+      return DraggableScrollableSheet(
+        initialChildSize: 0.55,
+        minChildSize: 0.35,
+        maxChildSize: 0.90,
+        builder: (_, controller) {
+          return ClipRRect(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.13),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1.2,
+                  ),
+                ),
+                child: ListView(
+                  controller: controller,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 5,
+                        margin: EdgeInsets.only(bottom: 15),
+                        decoration: BoxDecoration(
+                          color: Colors.white30,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      task.title,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      task.description,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    _bottomSheetInfo("Priority", task.priority),
+                    _bottomSheetInfo(
+                        "Date", task.scheduledDate.toString().split(" ").first),
+                    _bottomSheetInfo("Time", task.scheduleTime),
+                    _bottomSheetInfo(
+                        "Created", task.createdAt.toString().split('.')[0]),
+                    SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: () {
+                        final todoProvider = Provider.of<TodoListProvider>(context, listen: false);
+                        todoProvider.deleteTask(task.id);
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("${task.title} deleted")),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent.withOpacity(0.7),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                      child: Text("Delete Task"),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+Widget _bottomSheetInfo(String label, String value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 6),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(color: Colors.white70, fontSize: 16)),
+        Text(value, style: TextStyle(color: Colors.white, fontSize: 16)),
+      ],
+    ),
+  );
 }
