@@ -66,32 +66,26 @@ class TodoListProvider extends ChangeNotifier {
     _tasks = box.values.toList();
     notifyListeners();
   }
+
+  Future<void> updateTask(String id, String title, String description,
+      DateTime scheduleDate, Time scheduleTime, String priority) async {
+    final box = Hive.box<Task>(_boxName);
+    final task = box.get(id);
+
+    if (task != null) {
+      final formattedTime =
+          "${scheduleTime.hour.toString().padLeft(2, '0')}:${scheduleTime.minute.toString().padLeft(2, '0')}";
+
+      task.title = title;
+      task.description = description;
+      task.scheduledDate = scheduleDate;
+      task.scheduleTime = formattedTime;
+      task.priority = priority;
+
+      await task.save();
+      _tasks = box.values.toList();
+      notifyListeners();
+    }
+  }
 }
 
-// import 'package:flutter/material.dart';
-
-// class TodoListProvider extends ChangeNotifier {
-//   List<dynamic> todo_list = [
-//     // {"title": "title 1", "subtitle": "subtitle 1", "date": "2025.01.13", "time":"21:23"},
-//     // {"title": "title 2", "subtitle": "subtitle 2", "date": "2090.01.13", "time":"21:23"},
-//     // {"title": "title 3", "subtitle": "subtitle 3", "date": "2789.01.13", "time":"21:23"},
-//   ];
-
-//   void addToDo(String title, String description, DateTime scheduleDate, TimeOfDay scheduleTime) {
-//     todo_list.add(Map()
-//       ..["title"] = title
-//       ..["subtitle"] = description
-//       ..["date"] = "${scheduleDate.year}.${scheduleDate.month}.${scheduleDate.day}"
-//       ..["time"] = "${scheduleTime.hour}:${scheduleTime.minute}"
-//       ..["isChecked"] = false
-//     );
-
-//     notifyListeners();
-//   }
-
-//   void deleteToDoTask(int index) {
-//     todo_list.removeAt(index);
-
-//     notifyListeners();
-//   }
-// }

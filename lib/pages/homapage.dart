@@ -271,7 +271,6 @@ class ModernHomePage extends StatelessWidget {
   }
 }
 
-
 Color _priorityColor(String priority) {
   switch (priority.toLowerCase()) {
     case 'high':
@@ -403,22 +402,56 @@ Future _openTaskDetailsSheet(BuildContext context, var task) {
                     _bottomSheetInfo(
                         "Created", task.createdAt.toString().split('.')[0]),
                     SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: () {
-                        final todoProvider = Provider.of<TodoListProvider>(context, listen: false);
-                        todoProvider.deleteTask(task.id);
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("${task.title} deleted")),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent.withOpacity(0.7),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            final todoProvider = Provider.of<TodoListProvider>(
+                                context,
+                                listen: false);
+                            todoProvider.deleteTask(task.id);
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("${task.title} deleted")),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent.withOpacity(0.7),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                          ),
+                          child: Text(
+                            "Delete Task",
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
-                      ),
-                      child: Text("Delete Task"),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    NewToDoTaskPage(task: task),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 82, 128, 255)
+                                    .withOpacity(0.7),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                          ),
+                          child: Text(
+                            "Update Task",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     )
                   ],
                 ),
