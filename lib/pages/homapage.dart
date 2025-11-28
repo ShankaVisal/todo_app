@@ -4,99 +4,120 @@ import 'package:provider/provider.dart';
 import 'package:todo_app/providers/to_do_list_provider.dart';
 import 'package:todo_app/pages/new_todo_task_page.dart';
 
-class ModernHomePage extends StatelessWidget {
+class ModernHomePage extends StatefulWidget {
   const ModernHomePage({super.key});
+
+  @override
+  State<ModernHomePage> createState() => _ModernHomePageState();
+}
+  final FocusNode _searchFocusNode = FocusNode();
+class _ModernHomePageState extends State<ModernHomePage> {
+
+
+@override
+  void dispose() {
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<TodoListProvider>(
       builder: (context, todoProvider, child) {
-        return Scaffold(
-          backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-          floatingActionButton: glassFAB(() {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => NewToDoTaskPage()));
-          }),
-          body: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF0D0D0D),
-                  Color(0xFF1A1A1A),
-                  Color(0xFF0F0F0F),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+        return GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: Scaffold(
+            backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+            floatingActionButton: glassFAB(() {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => NewToDoTaskPage()));
+            }),
+            body: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFF0D0D0D),
+                    Color(0xFF1A1A1A),
+                    Color(0xFF0F0F0F),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-            ),
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                    child: Text(
-                      "My Tasks",
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                      child: Text(
+                        "My Tasks",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
                     ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.20),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
+          
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.20),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                              ),
                             ),
-                          ),
-                          child: TextField(
-                            style: TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              prefixIcon:
-                                  Icon(Icons.search, color: Colors.white70),
-                              hintText: "Search tasks...",
-                              hintStyle: TextStyle(color: Colors.white60),
-                              border: InputBorder.none,
+                            child: TextField(
+                              style: TextStyle(color: Colors.white),
+                              autofocus: false,
+                              focusNode: _searchFocusNode,
+                              decoration: InputDecoration(
+                                prefixIcon:
+                                    Icon(Icons.search, color: Colors.white70),
+                                hintText: "Search tasks...",
+                                hintStyle: TextStyle(color: Colors.white60),
+                                border: InputBorder.none,
+                              ),
+                              onChanged: (value) {
+                                
+                                Provider.of<TodoListProvider>(context,
+                                        listen: false)
+                                    .setSearchQuery(value);
+                              },
                             ),
-                            onChanged: (value) {
-                              Provider.of<TodoListProvider>(context,
-                                      listen: false)
-                                  .setSearchQuery(value);
-                            },
                           ),
                         ),
                       ),
                     ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // Task List
-                  Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsets.all(16),
-                      itemCount: todoProvider.tasks.length,
-                      itemBuilder: (context, index) {
-                        final task = todoProvider.tasks[index];
-
-                        return _buildTaskCard(task, context, todoProvider);
-                      },
+          
+                    const SizedBox(height: 10),
+          
+                    // Task List
+                    Expanded(
+                      child: ListView.builder(
+                        padding: EdgeInsets.all(16),
+                        itemCount: todoProvider.tasks.length,
+                        itemBuilder: (context, index) {
+                          final task = todoProvider.tasks[index];
+          
+                          return _buildTaskCard(task, context, todoProvider);
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -150,7 +171,11 @@ class ModernHomePage extends StatelessWidget {
                   splashColor: Colors.white.withOpacity(0.1),
                   highlightColor: Colors.white.withOpacity(0.05),
                   onTap: () {
-                    _openTaskDetailsSheet(context, task);
+                     FocusScope.of(context).unfocus(); 
+                    _openTaskDetailsSheet(context, task).whenComplete((){
+                      FocusScope.of(context).unfocus();
+                    });
+                    
                   },
                   onDoubleTap: () {
                     taskProvider.toggleComplete(task);
@@ -301,6 +326,7 @@ Widget glassSearchBar(
           ),
           child: TextField(
             controller: controller,
+            autofocus: false,
             style: TextStyle(color: Colors.white),
             onChanged: onSearch,
             decoration: InputDecoration(
@@ -345,120 +371,127 @@ Future _openTaskDetailsSheet(BuildContext context, var task) {
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     builder: (context) {
-      return DraggableScrollableSheet(
-        initialChildSize: 0.55,
-        minChildSize: 0.35,
-        maxChildSize: 0.90,
-        builder: (_, controller) {
-          return ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-              child: Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.13),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
-                    width: 1.2,
+      return NotificationListener<DraggableScrollableNotification>(
+        onNotification: (notification) {
+          _searchFocusNode.unfocus();
+          FocusScope.of(context).unfocus();
+          return false;
+        },
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.55,
+          minChildSize: 0.35,
+          maxChildSize: 0.90,
+          builder: (_, controller) {
+            return ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.13),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.2),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: ListView(
+                    controller: controller,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 5,
+                          margin: EdgeInsets.only(bottom: 15),
+                          decoration: BoxDecoration(
+                            color: Colors.white30,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        task.title,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        task.description,
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      _bottomSheetInfo("Priority", task.priority),
+                      _bottomSheetInfo(
+                          "Date", task.scheduledDate.toString().split(" ").first),
+                      _bottomSheetInfo("Time", task.scheduleTime),
+                      _bottomSheetInfo(
+                          "Created", task.createdAt.toString().split('.')[0]),
+                      SizedBox(height: 30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              final todoProvider = Provider.of<TodoListProvider>(
+                                  context,
+                                  listen: false);
+                              todoProvider.deleteTask(task.id);
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("${task.title} deleted")),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.redAccent.withOpacity(0.7),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                            ),
+                            child: Text(
+                              "Delete Task",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      NewToDoTaskPage(task: task),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 82, 128, 255)
+                                      .withOpacity(0.7),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                            ),
+                            child: Text(
+                              "Update Task",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
                 ),
-                child: ListView(
-                  controller: controller,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 5,
-                        margin: EdgeInsets.only(bottom: 15),
-                        decoration: BoxDecoration(
-                          color: Colors.white30,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
-                    Text(
-                      task.title,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      task.description,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    _bottomSheetInfo("Priority", task.priority),
-                    _bottomSheetInfo(
-                        "Date", task.scheduledDate.toString().split(" ").first),
-                    _bottomSheetInfo("Time", task.scheduleTime),
-                    _bottomSheetInfo(
-                        "Created", task.createdAt.toString().split('.')[0]),
-                    SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            final todoProvider = Provider.of<TodoListProvider>(
-                                context,
-                                listen: false);
-                            todoProvider.deleteTask(task.id);
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("${task.title} deleted")),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent.withOpacity(0.7),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                          ),
-                          child: Text(
-                            "Delete Task",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    NewToDoTaskPage(task: task),
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 82, 128, 255)
-                                    .withOpacity(0.7),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                          ),
-                          child: Text(
-                            "Update Task",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       );
     },
   );
