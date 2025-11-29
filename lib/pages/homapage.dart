@@ -195,9 +195,6 @@ class _ModernHomePageState extends State<ModernHomePage> {
                     _confirmDelete(context, () {
                       taskProvider.deleteTask(task.id);
                     }),
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(content: Text("${task.title} is deleted")),
-                    // ),
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -463,14 +460,17 @@ Future _openTaskDetailsSheet(BuildContext context, var task) {
                             children: [
                               ElevatedButton(
                                 onPressed: () {
+                                  Navigator.pop(context);
+                                  FocusScope.of(context)
+                                      .unfocus();
                                   final todoProvider =
                                       Provider.of<TodoListProvider>(context,
                                           listen: false);
-                                  todoProvider.deleteTask(task.id);
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text("${task.title} deleted")),
+                                  _confirmDelete(
+                                    context,
+                                    () {
+                                      todoProvider.deleteTask(task.id);
+                                    },
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
