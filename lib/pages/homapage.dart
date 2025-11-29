@@ -10,11 +10,20 @@ class ModernHomePage extends StatefulWidget {
   @override
   State<ModernHomePage> createState() => _ModernHomePageState();
 }
-  final FocusNode _searchFocusNode = FocusNode();
+
+final FocusNode _searchFocusNode = FocusNode();
+
 class _ModernHomePageState extends State<ModernHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _searchFocusNode.unfocus(); // Force keyboard close on page load
+      FocusScope.of(context).unfocus();
+    });
+  }
 
-
-@override
+  @override
   void dispose() {
     _searchFocusNode.dispose();
     super.dispose();
@@ -62,7 +71,7 @@ class _ModernHomePageState extends State<ModernHomePage> {
                         ),
                       ),
                     ),
-          
+
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: ClipRRect(
@@ -82,6 +91,7 @@ class _ModernHomePageState extends State<ModernHomePage> {
                             child: TextField(
                               style: TextStyle(color: Colors.white),
                               autofocus: false,
+                              enableSuggestions: false,
                               focusNode: _searchFocusNode,
                               decoration: InputDecoration(
                                 prefixIcon:
@@ -91,7 +101,6 @@ class _ModernHomePageState extends State<ModernHomePage> {
                                 border: InputBorder.none,
                               ),
                               onChanged: (value) {
-                                
                                 Provider.of<TodoListProvider>(context,
                                         listen: false)
                                     .setSearchQuery(value);
@@ -101,9 +110,9 @@ class _ModernHomePageState extends State<ModernHomePage> {
                         ),
                       ),
                     ),
-          
+
                     const SizedBox(height: 10),
-          
+
                     // Task List
                     Expanded(
                       child: ListView.builder(
@@ -111,7 +120,7 @@ class _ModernHomePageState extends State<ModernHomePage> {
                         itemCount: todoProvider.tasks.length,
                         itemBuilder: (context, index) {
                           final task = todoProvider.tasks[index];
-          
+
                           return _buildTaskCard(task, context, todoProvider);
                         },
                       ),
@@ -132,6 +141,9 @@ class _ModernHomePageState extends State<ModernHomePage> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Dismissible(
         key: Key(task.id),
+        confirmDismiss: (direction) async {
+          return await _confirmDismissleDelete(context);
+        },
         onDismissed: (direction) {
           taskProvider.deleteTask(task.id);
 
@@ -171,20 +183,21 @@ class _ModernHomePageState extends State<ModernHomePage> {
                   splashColor: Colors.white.withOpacity(0.1),
                   highlightColor: Colors.white.withOpacity(0.05),
                   onTap: () {
-                     FocusScope.of(context).unfocus(); 
-                    _openTaskDetailsSheet(context, task).whenComplete((){
+                    FocusScope.of(context).unfocus();
+                    _openTaskDetailsSheet(context, task).whenComplete(() {
                       FocusScope.of(context).unfocus();
                     });
-                    
                   },
                   onDoubleTap: () {
                     taskProvider.toggleComplete(task);
                   },
                   onLongPress: () => {
-                    taskProvider.deleteTask(task.id),
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("${task.title} is deleted")),
-                    ),
+                    _confirmDelete(context, () {
+                      taskProvider.deleteTask(task.id);
+                    }),
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(content: Text("${task.title} is deleted")),
+                    // ),
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -375,122 +388,144 @@ Future _openTaskDetailsSheet(BuildContext context, var task) {
         onNotification: (notification) {
           _searchFocusNode.unfocus();
           FocusScope.of(context).unfocus();
-          return false;
+          return true;
         },
-        child: DraggableScrollableSheet(
-          initialChildSize: 0.55,
-          minChildSize: 0.35,
-          maxChildSize: 0.90,
-          builder: (_, controller) {
-            return ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                child: Container(
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.13),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
-                      width: 1.2,
+        child: Stack(
+          children: [
+            GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus(); // ensure keyboard closes
+                Navigator.pop(context);
+              },
+              behavior: HitTestBehavior.translucent,
+              child: Container(color: Colors.transparent),
+            ),
+            DraggableScrollableSheet(
+              initialChildSize: 0.55,
+              minChildSize: 0.35,
+              maxChildSize: 0.90,
+              builder: (_, controller) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                    child: Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.13),
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(25)),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1.2,
+                        ),
+                      ),
+                      child: ListView(
+                        controller: controller,
+                        children: [
+                          Center(
+                            child: Container(
+                              width: 40,
+                              height: 5,
+                              margin: EdgeInsets.only(bottom: 15),
+                              decoration: BoxDecoration(
+                                color: Colors.white30,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                          ),
+                          Text(
+                            task.title,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            task.description,
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          _bottomSheetInfo("Priority", task.priority),
+                          _bottomSheetInfo("Date",
+                              task.scheduledDate.toString().split(" ").first),
+                          _bottomSheetInfo("Time", task.scheduleTime),
+                          _bottomSheetInfo("Created",
+                              task.createdAt.toString().split('.')[0]),
+                          SizedBox(height: 30),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  final todoProvider =
+                                      Provider.of<TodoListProvider>(context,
+                                          listen: false);
+                                  todoProvider.deleteTask(task.id);
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text("${task.title} deleted")),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Colors.redAccent.withOpacity(0.7),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Delete Task",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  FocusScope.of(context)
+                                      .unfocus(); // CLOSE KEYBOARD
+                                  await Future.delayed(Duration(
+                                      milliseconds:
+                                          100)); // PREVENT FOCUS RESTORE
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          NewToDoTaskPage(task: task),
+                                    ),
+                                  );
+                                  _searchFocusNode.unfocus();
+                                  FocusScope.of(context).unfocus();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 82, 128, 255)
+                                          .withOpacity(0.7),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Update Task",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
-                  child: ListView(
-                    controller: controller,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 40,
-                          height: 5,
-                          margin: EdgeInsets.only(bottom: 15),
-                          decoration: BoxDecoration(
-                            color: Colors.white30,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                      ),
-                      Text(
-                        task.title,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        task.description,
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 16,
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      _bottomSheetInfo("Priority", task.priority),
-                      _bottomSheetInfo(
-                          "Date", task.scheduledDate.toString().split(" ").first),
-                      _bottomSheetInfo("Time", task.scheduleTime),
-                      _bottomSheetInfo(
-                          "Created", task.createdAt.toString().split('.')[0]),
-                      SizedBox(height: 30),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              final todoProvider = Provider.of<TodoListProvider>(
-                                  context,
-                                  listen: false);
-                              todoProvider.deleteTask(task.id);
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("${task.title} deleted")),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent.withOpacity(0.7),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                            ),
-                            child: Text(
-                              "Delete Task",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      NewToDoTaskPage(task: task),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 82, 128, 255)
-                                      .withOpacity(0.7),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                            ),
-                            child: Text(
-                              "Update Task",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
+                );
+              },
+            ),
+          ],
         ),
       );
     },
@@ -508,4 +543,68 @@ Widget _bottomSheetInfo(String label, String value) {
       ],
     ),
   );
+}
+
+Future<void> _confirmDelete(
+    BuildContext context, VoidCallback onConfirm) async {
+  final shouldDelete = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text("Delete Task"),
+        content: Text("Are you sure you want to delete this task?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+              _searchFocusNode.unfocus();
+              FocusScope.of(context).unfocus();
+            },
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Task deleted")),
+              );
+              _searchFocusNode.unfocus();
+              FocusScope.of(context).unfocus();
+            },
+            child: Text(
+              "Delete",
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (shouldDelete == true) {
+    onConfirm();
+  }
+}
+
+Future<bool> _confirmDismissleDelete(BuildContext context) async {
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text("Delete Task"),
+        content: Text("Are you sure you want to delete this task?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      );
+    },
+  );
+  return result ?? false; // If dismissed, return false
 }
