@@ -47,138 +47,164 @@ class _NewToDoTaskPageState extends State<NewToDoTaskPage> {
   @override
   Widget build(BuildContext context) {
     return Consumer<TodoListProvider>(
-      builder: (context, todoListProviderModal, child) => Scaffold(
-        backgroundColor: Colors.black87, // Dark background for glass effect
-        appBar: AppBar(
-          title: Text(
-            widget.task == null
-                ? "New Task"
-                : "${widget.task?.title ?? ''} Task",
-          ),
-          backgroundColor: Colors.black87,
-          elevation: 0,
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              _glassTextField(
-                controller: title,
-                hint: widget.task == null
-                    ? "Task Name"
-                    : widget.task?.title ?? '',
-                icon: Icons.task_alt,
+      builder: (context, todoListProviderModal, child) {
+        return Scaffold(
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF0D0D0D),
+                  Color(0xFF1A1A1A),
+                  Color(0xFF0F0F0F),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              SizedBox(height: 16),
-              _glassTextField(
-                  controller: subtitle,
-                  hint: widget.task == null
-                      ? "Description"
-                      : widget.task?.description ?? '',
-                  icon: Icons.description,
-                  isDynamic: true),
-              SizedBox(height: 16),
-              _glassTextField(
-                controller: scheduleDate,
-                hint: widget.task == null
-                    ? "Date"
-                    : widget.task?.scheduledDate.toString().split(' ').first ??
-                        '',
-                icon: Icons.calendar_today,
-                readOnly: true,
-                onTap: () async {
-                  selectDate = await showDatePicker(
-                    context: context,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2100),
-                  );
-                  if (selectDate != null && widget.task == null) {
-                    scheduleDate.text =
-                        "${selectDate!.year}-${selectDate!.month.toString().padLeft(2, '0')}-${selectDate!.day.toString().padLeft(2, '0')}";
-                  }
-                  if (selectDate != null && widget.task != null) {
-                    scheduleDate.text =
-                        "${selectDate!.year}-${selectDate!.month.toString().padLeft(2, '0')}-${selectDate!.day.toString().padLeft(2, '0')}";
-                  }
-                  if (selectDate == null && widget.task != null) {
-                    scheduleDate.text = widget.task?.scheduledDate
-                            .toString()
-                            .split(' ')
-                            .first ??
-                        '';
-                  }
-                },
-              ),
-              SizedBox(height: 16),
-              _glassTextField(
-                controller: scheduleTime,
-                hint: widget.task == null
-                    ? "Time"
-                    : widget.task?.scheduleTime ?? '',
-                icon: Icons.access_time,
-                readOnly: true,
-                onTap: () {
-                  Navigator.of(context).push(
-                    showPicker(
-                      context: context,
-                      value: selectTime,
-                      sunrise: TimeOfDay(hour: 6, minute: 0),
-                      sunset: TimeOfDay(hour: 18, minute: 0),
-                      duskSpanInMinutes: 120,
-                      onChange: onTimeChanged,
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 30, 20, 10),
+                    child: Center(
+                      child: Text(
+                        widget.task == null
+                            ? "New Task"
+                            : "${widget.task?.title ?? ''} Task",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: const Color.fromARGB(221, 255, 255, 255),
+                        ),
+                      ),
                     ),
-                  );
-                },
-              ),
-              SizedBox(height: 16),
-              _glassDropdown(
-                value: selectedPriority,
-                hint: widget.task == null
-                    ? "Select Priority"
-                    : widget.task?.priority ?? 'Select Priority',
-                items: ["Low", "Medium", "High"],
-                onChanged: (val) {
-                  setState(() {
-                    selectedPriority = val;
-                  });
-                },
-              ),
-              SizedBox(height: 32),
-              _glassButton(
-                text: widget.task == null ? "Submit" : "Update",
-                onPressed: () {
-                  if (title.text.isNotEmpty &&
-                      subtitle.text.isNotEmpty &&
-                      selectDate != null &&
-                      selectedPriority != null) {
-                    if (widget.task != null) {
-                      todoListProviderModal.updateTask(
-                        widget.task!.id,
-                        title.text,
-                        subtitle.text,
-                        selectDate!,
-                        selectTime,
-                        selectedPriority!,
+                  ),
+                  SizedBox(height: 32),
+                  _glassTextField(
+                    controller: title,
+                    hint: widget.task == null
+                        ? "Task Name"
+                        : widget.task?.title ?? '',
+                    icon: Icons.task_alt,
+                  ),
+                  SizedBox(height: 16),
+                  _glassTextField(
+                      controller: subtitle,
+                      hint: widget.task == null
+                          ? "Description"
+                          : widget.task?.description ?? '',
+                      icon: Icons.description,
+                      isDynamic: true),
+                  SizedBox(height: 16),
+                  _glassTextField(
+                    controller: scheduleDate,
+                    hint: widget.task == null
+                        ? "Date"
+                        : widget.task?.scheduledDate
+                                .toString()
+                                .split(' ')
+                                .first ??
+                            '',
+                    icon: Icons.calendar_today,
+                    readOnly: true,
+                    onTap: () async {
+                      selectDate = await showDatePicker(
+                        context: context,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2100),
                       );
-                      Navigator.pop(context);
-                      return;
-                    } else {
-                      todoListProviderModal.addTask(
-                        title.text,
-                        subtitle.text,
-                        selectDate!,
-                        selectTime,
-                        selectedPriority!,
+                      if (selectDate != null && widget.task == null) {
+                        scheduleDate.text =
+                            "${selectDate!.year}-${selectDate!.month.toString().padLeft(2, '0')}-${selectDate!.day.toString().padLeft(2, '0')}";
+                      }
+                      if (selectDate != null && widget.task != null) {
+                        scheduleDate.text =
+                            "${selectDate!.year}-${selectDate!.month.toString().padLeft(2, '0')}-${selectDate!.day.toString().padLeft(2, '0')}";
+                      }
+                      if (selectDate == null && widget.task != null) {
+                        scheduleDate.text = widget.task?.scheduledDate
+                                .toString()
+                                .split(' ')
+                                .first ??
+                            '';
+                      }
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  _glassTextField(
+                    controller: scheduleTime,
+                    hint: widget.task == null
+                        ? "Time"
+                        : widget.task?.scheduleTime ?? '',
+                    icon: Icons.access_time,
+                    readOnly: true,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        showPicker(
+                          context: context,
+                          value: selectTime,
+                          sunrise: TimeOfDay(hour: 6, minute: 0),
+                          sunset: TimeOfDay(hour: 18, minute: 0),
+                          duskSpanInMinutes: 120,
+                          onChange: onTimeChanged,
+                        ),
                       );
-                      Navigator.pop(context);
-                    }
-                  }
-                },
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  _glassDropdown(
+                    value: selectedPriority,
+                    hint: widget.task == null
+                        ? "Select Priority"
+                        : widget.task?.priority ?? 'Select Priority',
+                    items: ["Low", "Medium", "High"],
+                    onChanged: (val) {
+                      setState(() {
+                        selectedPriority = val;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 32),
+                  _glassButton(
+                    text: widget.task == null ? "Submit" : "Update",
+                    onPressed: () {
+                      if (title.text.isNotEmpty &&
+                          subtitle.text.isNotEmpty &&
+                          selectDate != null &&
+                          selectedPriority != null) {
+                        if (widget.task != null) {
+                          todoListProviderModal.updateTask(
+                            widget.task!.id,
+                            title.text,
+                            subtitle.text,
+                            selectDate!,
+                            selectTime,
+                            selectedPriority!,
+                          );
+                          Navigator.pop(context);
+                          return;
+                        } else {
+                          todoListProviderModal.addTask(
+                            title.text,
+                            subtitle.text,
+                            selectDate!,
+                            selectTime,
+                            selectedPriority!,
+                          );
+                          Navigator.pop(context);
+                        }
+                      }
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

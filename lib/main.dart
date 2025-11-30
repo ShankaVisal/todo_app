@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'Doneo',
         theme: ThemeData(primarySwatch: Colors.blue),
         home: ModernHomePage(),
       ),

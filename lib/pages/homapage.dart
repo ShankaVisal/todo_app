@@ -1,6 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:todo_app/pages/aboutpage.dart';
+import 'package:todo_app/pages/contactuspage.dart';
+import 'package:todo_app/pages/helppage.dart';
+import 'package:todo_app/pages/settingspage.dart';
 import 'package:todo_app/providers/to_do_list_provider.dart';
 import 'package:todo_app/pages/new_todo_task_page.dart';
 
@@ -10,10 +15,9 @@ class ModernHomePage extends StatefulWidget {
   @override
   State<ModernHomePage> createState() => _ModernHomePageState();
 }
-
-final FocusNode _searchFocusNode = FocusNode();
-
 class _ModernHomePageState extends State<ModernHomePage> {
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  final FocusNode _searchFocusNode = FocusNode();
   @override
   void initState() {
     super.initState();
@@ -38,6 +42,86 @@ class _ModernHomePageState extends State<ModernHomePage> {
             FocusScope.of(context).unfocus();
           },
           child: Scaffold(
+            key: scaffoldKey,
+            drawer: ClipRRect(
+              borderRadius: BorderRadius.horizontal(right: Radius.circular(25)),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: Drawer(
+                  backgroundColor: Colors.black87,
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      DrawerHeader(
+                        curve: Curves.easeInOut,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                        ),
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Text(
+                                "Doneo",
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      const Color.fromARGB(221, 255, 255, 255),
+                                ),
+                              ),
+                              Text(
+                                "Get it done... simply.",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      const Color.fromARGB(221, 255, 255, 255),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      _drawerItem(Icons.info, "About", () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AboutPage()));
+                      }),
+                      _drawerItem(Icons.contact_mail, "Contact Us", () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ContactUsPage()));
+                      }),
+                      _drawerItem(Icons.help, "Help", () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HelpPage()));
+                      }),
+                      _drawerItem(Icons.settings, "Settings", () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SettingsPage()));
+                      }),
+                      Divider(color: Colors.white54),
+                      _drawerItem(Icons.exit_to_app, "Exit", () {
+                        Navigator.pop(context);
+                        Future.delayed(Duration(milliseconds: 200), () {
+                          SystemNavigator.pop();
+                        });
+                      }),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             backgroundColor: const Color.fromARGB(255, 0, 0, 0),
             floatingActionButton: glassFAB(() {
               Navigator.push(context,
@@ -57,20 +141,38 @@ class _ModernHomePageState extends State<ModernHomePage> {
               ),
               child: SafeArea(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Title
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                      child: Text(
-                        "My Tasks",
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                      padding: const EdgeInsets.fromLTRB(20, 30, 20, 10),
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: Text(
+                              "My Tasks",
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: const Color.fromARGB(221, 255, 255, 255),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                              right: 0,
+                              bottom: 4,
+                              top: 0,
+                              child: IconButton(
+                                  onPressed: () {
+                                    scaffoldKey.currentState?.openDrawer();
+                                  },
+                                  icon: Icon(Icons.menu,
+                                      color: Colors.white70, size: 28))),
+                        ],
                       ),
                     ),
+
+                    SizedBox(height: 20),
 
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -115,16 +217,41 @@ class _ModernHomePageState extends State<ModernHomePage> {
 
                     // Task List
                     Expanded(
-                      child: ListView.builder(
-                        padding: EdgeInsets.all(16),
-                        itemCount: todoProvider.tasks.length,
-                        itemBuilder: (context, index) {
-                          final task = todoProvider.tasks[index];
+                        child: todoProvider.tasks.isNotEmpty
+                            ? ListView.builder(
+                                padding: EdgeInsets.all(16),
+                                itemCount: todoProvider.tasks.length,
+                                itemBuilder: (context, index) {
+                                  final task = todoProvider.tasks[index];
 
-                          return _buildTaskCard(task, context, todoProvider);
-                        },
-                      ),
-                    ),
+                                  return _buildTaskCard(
+                                      task, context, todoProvider);
+                                },
+                              )
+                            : Center(
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: 80),
+                                    Image.asset(
+                                      'images/empty_tasks.png',
+                                      width: 200,
+                                      height: 200,
+                                    ),
+                                    SizedBox(height: 20),
+                                    Text(
+                                      "No tasks available.",
+                                      style: TextStyle(
+                                          color: Colors.white70, fontSize: 26),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      "Tap the '+' button to add a new task.",
+                                      style: TextStyle(
+                                          color: Colors.white70, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              )),
                   ],
                 ),
               ),
@@ -184,7 +311,7 @@ class _ModernHomePageState extends State<ModernHomePage> {
                   highlightColor: Colors.white.withOpacity(0.05),
                   onTap: () {
                     FocusScope.of(context).unfocus();
-                    _openTaskDetailsSheet(context, task).whenComplete(() {
+                    _openTaskDetailsSheet(context, task, _searchFocusNode).whenComplete(() {
                       FocusScope.of(context).unfocus();
                     });
                   },
@@ -194,7 +321,7 @@ class _ModernHomePageState extends State<ModernHomePage> {
                   onLongPress: () => {
                     _confirmDelete(context, () {
                       taskProvider.deleteTask(task.id);
-                    }),
+                    }, _searchFocusNode),
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -375,7 +502,7 @@ Widget glassFAB(VoidCallback onPressed) {
   );
 }
 
-Future _openTaskDetailsSheet(BuildContext context, var task) {
+Future _openTaskDetailsSheet(BuildContext context, var task, FocusNode searchFocusNode) {
   return showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
@@ -383,7 +510,7 @@ Future _openTaskDetailsSheet(BuildContext context, var task) {
     builder: (context) {
       return NotificationListener<DraggableScrollableNotification>(
         onNotification: (notification) {
-          _searchFocusNode.unfocus();
+          searchFocusNode.unfocus();
           FocusScope.of(context).unfocus();
           return true;
         },
@@ -461,8 +588,7 @@ Future _openTaskDetailsSheet(BuildContext context, var task) {
                               ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  FocusScope.of(context)
-                                      .unfocus();
+                                  FocusScope.of(context).unfocus();
                                   final todoProvider =
                                       Provider.of<TodoListProvider>(context,
                                           listen: false);
@@ -470,7 +596,7 @@ Future _openTaskDetailsSheet(BuildContext context, var task) {
                                     context,
                                     () {
                                       todoProvider.deleteTask(task.id);
-                                    },
+                                    }, searchFocusNode,
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -500,7 +626,7 @@ Future _openTaskDetailsSheet(BuildContext context, var task) {
                                           NewToDoTaskPage(task: task),
                                     ),
                                   );
-                                  _searchFocusNode.unfocus();
+                                  searchFocusNode.unfocus();
                                   FocusScope.of(context).unfocus();
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -546,7 +672,7 @@ Widget _bottomSheetInfo(String label, String value) {
 }
 
 Future<void> _confirmDelete(
-    BuildContext context, VoidCallback onConfirm) async {
+    BuildContext context, VoidCallback onConfirm, FocusNode searchFocusNode) async {
   final shouldDelete = await showDialog<bool>(
     context: context,
     builder: (context) {
@@ -557,7 +683,7 @@ Future<void> _confirmDelete(
           TextButton(
             onPressed: () {
               Navigator.pop(context, false);
-              _searchFocusNode.unfocus();
+              searchFocusNode.unfocus();
               FocusScope.of(context).unfocus();
             },
             child: Text("Cancel"),
@@ -568,7 +694,7 @@ Future<void> _confirmDelete(
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Task deleted")),
               );
-              _searchFocusNode.unfocus();
+              searchFocusNode.unfocus();
               FocusScope.of(context).unfocus();
             },
             child: Text(
@@ -607,4 +733,12 @@ Future<bool> _confirmDismissleDelete(BuildContext context) async {
     },
   );
   return result ?? false; // If dismissed, return false
+}
+
+Widget _drawerItem(IconData icon, String title, VoidCallback onTap) {
+  return ListTile(
+    leading: Icon(icon, color: Colors.white70),
+    title: Text(title, style: TextStyle(color: Colors.white)),
+    onTap: onTap,
+  );
 }
